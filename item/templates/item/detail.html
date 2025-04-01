@@ -1,0 +1,162 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ item.name }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Colors */
+    :root {
+        --primary: #20c997;
+        --primary-dark: #1aa179;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Card Styles */
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Image Styles */
+    .card-img, .card-img-top {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .featured-img {
+        height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    /* Button Styles */
+    .btn-custom {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background-color: var(--primary-dark);
+        color: white;
+    }
+
+    /* Information Card */
+    .info-card {
+        background-color: var(--light-bg);
+        border-radius: 10px;
+        padding: 25px;
+        height: 100%;
+    }
+
+    /* Typography */
+    .section-title {
+        font-weight: 700;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+
+    /* Responsive Typography */
+    @media (max-width: 768px) {
+        .card-img, .card-img-top {
+            height: 200px;
+        }
+        
+        .featured-img {
+            height: 300px;
+        }
+    }
+</style>
+
+<div class="container my-5">
+    <!-- Item Details Section -->
+    <div class="row g-4 mb-5">
+        <!-- Item Image -->
+        <div class="col-lg-7 mb-4 mb-lg-0">
+            <div class="card">
+                <img src="{{ item.image.url }}" class="featured-img" alt="{{ item.name }}">
+            </div>
+        </div>
+
+        <!-- Item Information -->
+        <div class="col-lg-5">
+            <div class="info-card h-100">
+                <h1 class="section-title">{{ item.name }}</h1>
+                <div class="mb-4">
+                    <p class="fs-4 mb-2"><strong>Price:</strong> ${{ item.price }}</p>
+                    <p class="fs-5 mb-3"><strong>Seller:</strong> {{ item.created_by.username }}</p>
+                </div>
+
+                {% if item.description %}
+                    <div class="mb-4">
+                        <h5 class="mb-2">Description:</h5>
+                        <p class="text-muted">{{ item.description }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="mt-auto">
+                    {% if request.user == item.created_by %}
+                        <div class="card p-3 mb-3">
+                            <p class="text-muted mb-3">This is your item!</p>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <a href="{% url 'item:edit' item.id %}" class="btn btn-custom me-md-2">Edit</a>
+                                <a href="{% url 'item:delete' item.id %}" class="btn btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Contact Seller Button -->
+                        <a href="{% url 'conversation:new' item.id %}" class="btn btn-custom btn-lg w-100">Contact Seller</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Items Section -->
+    <div class="card p-4 mt-5">
+        <h2 class="section-title text-center">Related Items</h2>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for item in related_items %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ item.name }}</h5>
+                            <p class="card-text text-muted">Price: ${{ item.price }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3">
+                            <a href="{% url 'item:detail' item.id %}" class="btn btn-custom w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
